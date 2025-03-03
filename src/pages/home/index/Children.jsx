@@ -23,10 +23,8 @@ function Children(props) {
   //!!!todo import 进行动态渲染 list值
   const renderDict = () => {
     const { glr } = form.getFieldsValue()
-    console.log('glr', glr)
     const r1 = zhList.map(item => ({ data: item.zhdm, label: item.zhAdd }))
     const r2 = listRef.current?.map(item => ({ data: item.zhdm, label: item.zhAdd }))
-    console.log('glr?.length', glr?.length)
     if (!glr || glr?.length) return r1
     return r2
   }
@@ -74,18 +72,12 @@ function Children(props) {
 
   useEffect(() => {
     //!!!todo import 开关控制保存初始化变量
-    console.log('zhList', zhList)
     if (!flag.current) return
     if (zhList?.length) {
       flag.current = false
       listRef.current = zhList
-      console.log('listRef.current', listRef.current)
     }
   }, [zhList])
-
-  useEffect(() => {
-    console.log('flag.current ', flag.current)
-  }, [flag.current])
 
   // useEffect(() => {
   //   console.log('listRef.current', listRef.current)

@@ -1,23 +1,23 @@
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Switch, Avatar, Popover, Flex, Tag } from 'antd'
-import { menuMinWidth, menuMaxWidth } from '@/comom/readonly'
+import { Avatar, Flex, Popover, Switch, Tag } from 'antd'
+import { menuMaxWidth, menuMinWidth } from '@/comom/readonly'
 import { logout, setTags } from '@/stores/user.ts'
 import { RootState, store } from '@/stores'
 import styles from './index.module.less'
 import { useSelector } from 'react-redux'
-import cloneDeep from 'lodash/cloneDeep'
+import { cloneDeep, uniqId } from 'lodash'
 import _ from 'lodash'
 import { List } from 'immutable'
 import {
+  CloseOutlined,
+  HomeOutlined,
+  LeftOutlined,
   MenuFoldOutlined,
   MoonOutlined,
-  SunOutlined,
-  UserOutlined,
-  LeftOutlined,
   RedoOutlined,
-  HomeOutlined,
-  CloseOutlined
+  SunOutlined,
+  UserOutlined
 } from '@ant-design/icons'
 import { IRouteObj } from '@/types/user'
 import { getClickMenuTags } from '@/utils'
@@ -37,6 +37,10 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
   const navigate = useNavigate()
   const root = document.getElementById('root')
   const { tags } = useSelector((state: RootState) => state.user)
+
+  useEffect(() => {
+    !tags.length && setNames([])
+  }, [tags])
 
   useEffect(() => {
     /**
@@ -112,17 +116,12 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
       e.active = e.id === ids
       return e
     })
-    console.log('arr', arr)
     store.dispatch(setTags(arr))
     hoveredTag && setHoveredTag(undefined)
     const route = item ? item.router : tags.find(item => item.id === ids).router
     navigate(route);
     (activeMenu.current as any) = id ?? item.id
   }
-
-  useEffect(() => {
-    console.log('activeMenu', activeMenu)
-  }, [activeMenu.current])
 
   /*
   *  导航标签回退
@@ -206,6 +205,7 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
     })
   }, [hoveredTag, activeMenu.current, tags])
 
+  // 获取当前菜单 - 级别
   const getMenuListNames = (data) => {
     setNames([])  // 清空 names 数组
     return data.find(e => {
@@ -230,37 +230,36 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
     })
   }
 
-  useEffect(() => {
-    getMenuListNames(menuList)
-  }, [activeMenu.current])
+  // 渲染当前菜单 - 级别
+  const renderTitle = useMemo(() => (): any =>
+    names.map((e, i) => {
+      return (
+        <>
+          <span key={uniqId} style={{ marginLeft: 10 }}>{e} </span>
+          {
+            i != names.length - 1 ? (
+              <span key={uniqId} style={{ marginLeft: 10 }}>
+                {'>'}
+              </span>) : ''
+          }
+        </>
+      )
+    }), [names])
 
   useEffect(() => {
-    console.log('names', names)
-  }, [names])
+    getMenuListNames(menuList)
+    console.log(' getMenuListNames(menuList)', getMenuListNames(menuList))
+  }, [activeMenu.current])
 
   return (
     <div className={`${styles.content} bg`}>
       {/*导航烂*/}
       <div className={`${styles.nav} theme-bg`}>
         <div className="flex-center">
-          <MenuFoldOutlined onClick={() =>
+          <MenuFoldOutlined key={uniqId} onClick={() =>
             sideWidth === menuMaxWidth ? setSideWidth(menuMinWidth) : setSideWidth(menuMaxWidth)
           } />
-          {
-            names.map((e, i) => {
-              return (
-                <>
-                  <span style={{ marginLeft: 10 }}>{e} </span>
-                  {
-                    i != names.length - 1 ? (<span style={{ marginLeft: 10 }}>
-                    {'>'}
-                    </span>) : ''
-                  }
-                </>
-
-              )
-            })
-          }
+          {renderTitle()}
         </div>
         <i className="iconfont icon-dark"></i>
         <div className={styles['header-personal']}>

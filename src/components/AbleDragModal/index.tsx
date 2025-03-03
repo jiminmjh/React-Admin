@@ -154,7 +154,7 @@ const AbleDragModal: React.FC<Partial<ModalProps>> = ({
       setTimeout(() => {
         let wrapLen: number = document.querySelectorAll('.ant-modal-wrap')?.length
         let wrapModal = document.querySelectorAll('.ant-modal-wrap')
-        console.log('wrapModal', wrapModal, Array.from(wrapModal))
+        // console.log('wrapModal', wrapModal, Array.from(wrapModal))
         if (wrapLen) {
           Array.from(wrapModal).forEach(each => {
             if ((each as HTMLElement)?.style.display != 'none') {
