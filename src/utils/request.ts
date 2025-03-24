@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios'
-import { message } from 'antd'
+import { message, Modal } from 'antd'
 import storage from '@/utils/storage'
 import { refreshTokenAPI } from '@/server'
 import { store } from '@/stores'
@@ -34,26 +34,32 @@ class HttpRequest {
 
         // token要过期了,且refreshToken没过期
         if (storage.isExpired('token') && !storage.isExpired('refreshToken') && !config.url?.includes('refreshToken')) {
+
           if (!this.isRefreshing) {
-            // 1.发送刷新 token 的请求
-            console.log('发送刷新TOKEN的请求')
-            this.isRefreshing = true
-            refreshTokenAPI(refreshToken).then(async result => {
-              // 1.1异步更新 token，但是不要更新 refreshToken
-              // 先执行下面 将当前请求放入 queq 队列
-              console.log('刷新TOKEN完成', result)
-              await store.dispatch(
-                setToken({ ...result, isChangeRefresh: false })
-              )
-
-              // 1.2重置isRefreshing
-              this.isRefreshing = false
-
-              // 1.3取出队列中的函数进行执行
-              this.queq.forEach(item => item(result.token))
-
-              // 1.4重置队列
-              this.queq = []
+            Modal.confirm({
+              title: 'token已到期，是否重新刷新?',
+              onOk() {
+                // 1.发送刷新 token 的请求
+                console.log('发送刷新TOKEN的请求')
+                this.isRefreshing = true
+                refreshTokenAPI(refreshToken).then(async result => {
+                  // 1.1异步更新 token，但是不要更新 refreshToken
+                  // 先执行下面 将当前请求放入 queq 队列
+                  console.log('刷新TOKEN完成', result)
+                  await store.dispatch(
+                    setToken({ ...result, isChangeRefresh: false })
+                  )
+                  // 1.2重置isRefreshing
+                  this.isRefreshing = false
+                  // 1.3取出队列中的函数进行执行
+                  this.queq.forEach(item => item(result.token))
+                  // 1.4重置队列
+                  this.queq = []
+                })
+              },
+              onCancel() {
+                console.log('Cancel')
+              }
             })
           }
 
@@ -65,6 +71,7 @@ class HttpRequest {
               resolve(config)
             })
           })
+
         }
         return config
       },

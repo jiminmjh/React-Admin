@@ -57,9 +57,9 @@ const userSlice = createSlice({
 
       // 写入本地存储
       // storage.set('token', token, 5) // 自定义token到期时间 s
-      // storage.set('refreshToken', refreshToken, 50)
+      storage.set('refreshToken', refreshToken, 5)
       storage.set('token', token, expire)
-      storage.set('refreshToken', refreshToken, refreshExpire)
+      // storage.set('refreshToken', refreshToken, refreshExpire)
     },
     logout: state => {
       state.token = ''
