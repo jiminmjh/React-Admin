@@ -1,5 +1,5 @@
 import axios, { type AxiosInstance, type AxiosRequestConfig } from 'axios'
-import { message, Modal } from 'antd'
+import { message } from 'antd'
 import storage from '@/utils/storage'
 import { refreshTokenAPI } from '@/server'
 import { store } from '@/stores'
@@ -33,46 +33,48 @@ class HttpRequest {
         config.headers.Authorization = token
 
         // token要过期了,且refreshToken没过期
-        if (storage.isExpired('token') && !storage.isExpired('refreshToken') && !config.url?.includes('refreshToken')) {
+        if (storage.isExpired('token') && !config.url?.includes('refreshToken')) {
+          if (!storage.isExpired('refreshToken')) {
+            if (!this.isRefreshing) {
+              // 1.发送刷新 token 的请求
+              console.log('发送刷新TOKEN的请求')
+              this.isRefreshing = true
+              refreshTokenAPI(refreshToken).then(async result => {
+                // 1.1异步更新 token，但是不要更新 refreshToken
+                // 先执行下面 将当前请求放入 queq 队列
+                console.log('刷新TOKEN完成', result)
+                await store.dispatch(setToken({ ...result, isChangeRefresh: false }))
 
-          if (!this.isRefreshing) {
-            Modal.confirm({
-              title: 'token已到期，是否重新刷新?',
-              onOk() {
-                // 1.发送刷新 token 的请求
-                console.log('发送刷新TOKEN的请求')
-                this.isRefreshing = true
-                refreshTokenAPI(refreshToken).then(async result => {
-                  // 1.1异步更新 token，但是不要更新 refreshToken
-                  // 先执行下面 将当前请求放入 queq 队列
-                  console.log('刷新TOKEN完成', result)
-                  await store.dispatch(
-                    setToken({ ...result, isChangeRefresh: false })
-                  )
-                  // 1.2重置isRefreshing
-                  this.isRefreshing = false
-                  // 1.3取出队列中的函数进行执行
-                  this.queq.forEach(item => item(result.token))
-                  // 1.4重置队列
-                  this.queq = []
-                })
-              },
-              onCancel() {
-                console.log('Cancel')
-              }
+                // 1.2重置isRefreshing
+                this.isRefreshing = false
+
+                // 1.3取出队列中的函数进行执行
+                this.queq.forEach(item => item(result.token))
+
+                // 1.4重置队列
+                this.queq = []
+              })
+            }
+
+            //2.阻止当前请求的发出，将其追加到一个队列
+            return new Promise(resolve => {
+              this.queq.push(function (newToken) {
+                // 处理旧token
+                config.headers.Authorization = newToken
+                resolve(config)
+              })
             })
+          } else {
+            message.error('登录已过期，请重新登录')
+            storage.clearAll()
+            if (typeof window !== 'undefined') {
+              setTimeout(() => {
+                window.location.href = '/login'
+              }, 2000)
+            }
           }
-
-          //2.阻止当前请求的发出，将其追加到一个队列
-          return new Promise(resolve => {
-            this.queq.push(function(newToken) {
-              // 处理旧token
-              config.headers.Authorization = newToken
-              resolve(config)
-            })
-          })
-
         }
+
         return config
       },
       error => {

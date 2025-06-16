@@ -12,8 +12,8 @@ type IUser = [person: IUserInfo, permmenu: { perms: string[]; menus: IMenuItem[]
 
 // 配置 redux-persist 的持久化设置
 const persistConfig = {
-  key: 'user',                // 持久化存储的 key
-  storage: storageEngine,     // 使用 localStorage 进行存储
+  key: 'user', // 持久化存储的 key
+  storage: storageEngine, // 使用 localStorage 进行存储
   whitelist: ['info', 'perms', 'menus', 'tags'] // 需要持久化的字段
 }
 
@@ -57,9 +57,9 @@ const userSlice = createSlice({
 
       // 写入本地存储
       // storage.set('token', token, 5) // 自定义token到期时间 s
-      storage.set('refreshToken', refreshToken, 5)
+      // storage.set('refreshToken', refreshToken, 10)
       storage.set('token', token, expire)
-      // storage.set('refreshToken', refreshToken, refreshExpire)
+      storage.set('refreshToken', refreshToken, refreshExpire)
     },
     logout: state => {
       state.token = ''

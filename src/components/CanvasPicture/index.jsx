@@ -1,25 +1,22 @@
+// slb生成产品图片对比 - canvas
 import React, { useEffect, useRef, useState } from 'react'
 
 const CanvasPicture = ({ width = 800, height = 600, products = [], onExport }) => {
-  const canvasRef = useRef(null)          // 原生 canvas 引用
-  const fabricRef = useRef(null)          // fabric.Canvas 引用
+  const canvasRef = useRef(null)
+  const fabricRef = useRef(null)
   const [fabric, setFabric] = useState(null)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [loadingError, setLoadingError] = useState(false) // 记录加载错误状态
 
-  // ✅ 动态加载 fabric.js
   useEffect(() => {
     import('fabric').then((module) => {
-      console.log('module', module, module.default)
       setFabric(module)
     })
   }, [])
 
-  // ✅ 初始化 canvas
   useEffect(() => {
-    console.log('fabric', fabric)
     if (!fabric) return
 
-    // 清理旧 canvas，防止重复创建
     if (fabricRef.current) {
       fabricRef.current.dispose()
     }
@@ -33,12 +30,11 @@ const CanvasPicture = ({ width = 800, height = 600, products = [], onExport }) =
     fabricRef.current = canvas
 
     return () => {
-      canvas.dispose()  // 销毁 canvas，防止内存泄漏
+      canvas.dispose()
       fabricRef.current = null
     }
   }, [fabric])
 
-  // ✅ 加载图片并确保加载完成
   useEffect(() => {
     if (!fabric || !fabricRef.current || products.length === 0) return
 
@@ -47,11 +43,10 @@ const CanvasPicture = ({ width = 800, height = 600, products = [], onExport }) =
 
     const loadImage = (url, left, top) => {
       return new Promise((resolve) => {
-        // ✅ 添加超时机制，防止图片加载卡住
         const timeout = setTimeout(() => {
           console.warn(`图片加载超时: ${url}`)
-          resolve(null)  // 超时返回 null，防止挂起
-        }, 3000)  // 3 秒超时
+          resolve(null)  // 超时返回 null
+        }, 3000)  // 超时时间：3秒
 
         fabric.Image.fromURL(
           url,
@@ -71,7 +66,7 @@ const CanvasPicture = ({ width = 800, height = 600, products = [], onExport }) =
             onError: () => {
               console.error(`图片加载失败: ${url}`)
               clearTimeout(timeout)
-              resolve(null)  // 图片加载失败也 resolve，防止挂起
+              resolve(null)  // 图片加载失败
             }
           }
         )
@@ -86,9 +81,14 @@ const CanvasPicture = ({ width = 800, height = 600, products = [], onExport }) =
         ])
       )
 
-      await Promise.all(promises)
+      const results = await Promise.all(promises)
 
-      // ✅ 产品名称和信息
+      // 检查是否有加载失败的图片
+      if (results.includes(null)) {
+        setLoadingError(true)
+      }
+
+      // 添加产品名称和信息
       products.forEach((product, index) => {
         const name = new fabric.Text(product.name, {
           left: 50 + index * 250,
@@ -108,16 +108,16 @@ const CanvasPicture = ({ width = 800, height = 600, products = [], onExport }) =
       })
 
       canvas.renderAll()
-      setIsLoaded(true)  // 标记加载完成
+      setIsLoaded(true)
     }
 
     loadProducts().catch((error) => {
       console.error('加载图片出错:', error)
       setIsLoaded(true)
+      setLoadingError(true)
     })
   }, [fabric, products])
 
-  // ✅ 导出图片
   const exportImage = () => {
     if (!fabricRef.current || !isLoaded) {
       console.error('🚫 Canvas is not ready yet!')
@@ -138,6 +138,7 @@ const CanvasPicture = ({ width = 800, height = 600, products = [], onExport }) =
   return (
     <div className="canvas-wrapper">
       <canvas ref={canvasRef} />
+      {loadingError && <div style={{ color: 'red', marginTop: 10 }}>图片加载失败，请稍后再试。</div>}
       <button
         onClick={exportImage}
         style={{
@@ -148,7 +149,7 @@ const CanvasPicture = ({ width = 800, height = 600, products = [], onExport }) =
           border: 'none',
           cursor: 'pointer'
         }}
-        disabled={!isLoaded}  // ✅ 图片未加载完成时禁用按钮
+        disabled={!isLoaded}  // 图片未加载完成时禁用按钮
       >
         {isLoaded ? '导出图片' : '加载中...'}
       </button>
