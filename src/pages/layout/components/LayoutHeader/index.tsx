@@ -6,8 +6,7 @@ import { logout, setTags } from '@/stores/user.ts'
 import { RootState, store } from '@/stores'
 import styles from './index.module.less'
 import { useSelector } from 'react-redux'
-import { cloneDeep, uniqId } from 'lodash'
-import _ from 'lodash'
+import _, { cloneDeep, uniqueId } from 'lodash'
 import { List } from 'immutable'
 import {
   CloseOutlined,
@@ -233,16 +232,17 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
   // 渲染当前菜单 - 级别
   const renderTitle = useMemo(() => (): any =>
     names.map((e, i) => {
+      const id = uniqueId()
       return (
-        <>
-          <span key={uniqId} style={{ marginLeft: 10 }}>{e} </span>
+        <div key={id}>
+          <span style={{ marginLeft: 10 }}>{e} </span>
           {
             i != names.length - 1 ? (
-              <span key={uniqId} style={{ marginLeft: 10 }}>
+              <span style={{ marginLeft: 10 }}>
                 {'>'}
               </span>) : ''
           }
-        </>
+        </div>
       )
     }), [names])
 
@@ -256,7 +256,7 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
       {/*导航烂*/}
       <div className={`${styles.nav} theme-bg`}>
         <div className="flex-center">
-          <MenuFoldOutlined key={uniqId} onClick={() =>
+          <MenuFoldOutlined onClick={() =>
             sideWidth === menuMaxWidth ? setSideWidth(menuMinWidth) : setSideWidth(menuMaxWidth)
           } />
           {renderTitle()}
