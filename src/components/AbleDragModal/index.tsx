@@ -27,16 +27,31 @@ interface ModalProps {
   forceRender: boolean
   showConfirmStyle: React.CSSProperties
   loadingBtnDis: boolean
-  wrapClassName: string,
+  wrapClassName: string
   footer: React.ReactNode
 }
 
 /**
- * 功能：
+ * 针对antd4封装功能：
  * 1. header 模态框可拖动功能。
  * 2. 内容区样式设置增强 - bodyStyle。
  * 3. 灵活的底部按钮配置
  * 4. 关闭后的额外操作 afterClose
+ *
+ *
+ *
+- Ant Design 5已内置智能位置计算
+- 自动处理窗口边界和多个模态框叠加
+- 支持响应式布局调整
+
+- 可移除的代码 ：
+- 手动计算模态框位置的逻辑（如 offsetWidth/Height 计算）
+- 强制设置 left/top 样式的代码
+- 多模态框叠加时的特殊处理
+- 保留的必要功能 ：
+
+- 拖动功能的位置计算
+- 特殊布局需求的自定义位置
 
 
  /**
@@ -83,7 +98,6 @@ interface ModalProps {
  * 24. footer：模态框底部内容，可自定义元素，未提供时根据其他状态动态生成底部按钮。
  **/
 
-
 const AbleDragModal: React.FC<Partial<ModalProps>> = ({
   visible,
   title,
@@ -126,12 +140,19 @@ const AbleDragModal: React.FC<Partial<ModalProps>> = ({
         if (!style) {
           let len = document.querySelectorAll('.ant-modal')?.length
           const modal = document.querySelectorAll('.ant-modal')
-          len > 0 && Array.from(modal).forEach(m => {
-            if (m?.className.includes('ant-modal-confirm') || m?.className.includes('ant-modal-ignore')) return
-            const { offsetWidth, offsetHeight } = m as HTMLElement;
-            (m as HTMLElement).style.left = offsetWidth > ((m as HTMLElement)?.parentNode as HTMLElement)?.offsetWidth ? '0' : 'calc(50% - ' + offsetWidth / 2 + 'px)';
-            (m as HTMLElement).style.top = offsetHeight > ((m as HTMLElement)?.parentNode as HTMLElement)?.offsetHeight ? '0' : 'calc(50% - ' + offsetHeight / 2 + 'px)'
-          })
+          len > 0 &&
+            Array.from(modal).forEach(m => {
+              if (m?.className.includes('ant-modal-confirm') || m?.className.includes('ant-modal-ignore')) return
+              const { offsetWidth, offsetHeight } = m as HTMLElement
+              ;(m as HTMLElement).style.left =
+                offsetWidth > ((m as HTMLElement)?.parentNode as HTMLElement)?.offsetWidth
+                  ? '0'
+                  : 'calc(50% - ' + offsetWidth / 2 + 'px)'
+              ;(m as HTMLElement).style.top =
+                offsetHeight > ((m as HTMLElement)?.parentNode as HTMLElement)?.offsetHeight
+                  ? '0'
+                  : 'calc(50% - ' + offsetHeight / 2 + 'px)'
+            })
         }
       }, 10)
     }
@@ -144,7 +165,7 @@ const AbleDragModal: React.FC<Partial<ModalProps>> = ({
 
   useEffect(() => {
     const content = document.getElementsByClassName('ant-modal-body')
-    Array.from(content).forEach((el) => {
+    Array.from(content).forEach(el => {
       Object.assign((el as HTMLElement).style, bodyStyle)
     })
   }, [])
@@ -206,8 +227,12 @@ const AbleDragModal: React.FC<Partial<ModalProps>> = ({
         ;(modalWrap.querySelector('.ant-modal') as HTMLElement).style.top = `${e.pageY - distance.yDistance}px`
       }
     } else {
-      ;((modalModal.current as HTMLElement).getElementsByClassName('ant-modal')[0] as HTMLElement).style.left = `${e.pageX - distance.xDistance}px`
-      ;((modalModal.current as HTMLElement).getElementsByClassName('ant-modal')[0] as HTMLElement).style.top = `${e.pageY - distance.yDistance}px`
+      ;((modalModal.current as HTMLElement).getElementsByClassName('ant-modal')[0] as HTMLElement).style.left = `${
+        e.pageX - distance.xDistance
+      }px`
+      ;((modalModal.current as HTMLElement).getElementsByClassName('ant-modal')[0] as HTMLElement).style.top = `${
+        e.pageY - distance.yDistance
+      }px`
     }
   }
 
@@ -250,48 +275,53 @@ const AbleDragModal: React.FC<Partial<ModalProps>> = ({
   }
 
   return (
-    <Modal afterClose={() => afterClose?.()}
-           open={visible}
-           getContainer={getContainer}
-           title={title}
-           style={{ position: 'absolute', ...style }}
-           forceRender={forceRender}
-           footer={footer ? footer : [
-             onSubmit ? (
-               <Button
-                 key="query"
-                 style={showConfirmStyle}
-                 type="primary"
-                 disabled={isNoDelay ? false : btnDisabled || childBtnDis || loadingBtnDis}
-                 onClick={() => clickCallback(onSubmit)}>
-                 {showConfirm || '保存'}
-               </Button>
-             ) : null,
-             onReset ? (
-               <Button
-                 key="reset"
-                 type="primary"
-                 disabled={btnDisabled || loadingBtnDis}
-                 onClick={() => clickCallback(onReset)}>
-                 {'重置'}
-               </Button>
-             ) : null,
-             showClose ? (
-               <Button
-                 key="cancle"
-                 type="primary"
-                 disabled={btnDisabled || loadingBtnDis}
-                 onClick={() => clickCallback(close)}>
-                 {closeBtnName || '取消'}
-               </Button>
-             ) : null
-           ]}
-           onCancel={close}
-           width={width}
-           destroyOnClose={destroyOnClose}
-           wrapClassName={wrapClassName}
-           maskClosable={maskClosable}>
-      {visible && <div className="ableDragModal">{children}</div>}
+    <Modal
+      afterClose={() => afterClose?.()}
+      open={visible}
+      getContainer={getContainer}
+      title={title}
+      style={{ position: 'absolute', ...style }}
+      forceRender={forceRender}
+      footer={
+        footer
+          ? footer
+          : [
+              onSubmit ? (
+                <Button
+                  key='query'
+                  style={showConfirmStyle}
+                  type='primary'
+                  disabled={isNoDelay ? false : btnDisabled || childBtnDis || loadingBtnDis}
+                  onClick={() => clickCallback(onSubmit)}>
+                  {showConfirm || '保存'}
+                </Button>
+              ) : null,
+              onReset ? (
+                <Button
+                  key='reset'
+                  type='primary'
+                  disabled={btnDisabled || loadingBtnDis}
+                  onClick={() => clickCallback(onReset)}>
+                  {'重置'}
+                </Button>
+              ) : null,
+              showClose ? (
+                <Button
+                  key='cancle'
+                  type='primary'
+                  disabled={btnDisabled || loadingBtnDis}
+                  onClick={() => clickCallback(close)}>
+                  {closeBtnName || '取消'}
+                </Button>
+              ) : null
+            ]
+      }
+      onCancel={close}
+      width={width}
+      destroyOnClose={destroyOnClose}
+      wrapClassName={wrapClassName}
+      maskClosable={maskClosable}>
+      {visible && <div className='ableDragModal'>{children}</div>}
     </Modal>
   )
 }

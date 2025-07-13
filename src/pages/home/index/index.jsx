@@ -51,27 +51,27 @@ import React from 'react'
 import CanvasPicture from '@/components/CanvasPicture'
 
 const ProductCompare = () => {
-  const products = [
-    {
-      name: '产品 A',
-      image: 'https://via.placeholder.com/200x200.png?text=Product+A',
-      info: '价格: ¥1999\n销量: 5000件'
-    },
-    {
-      name: '产品 B',
-      image: 'https://via.placeholder.com/200x200.png?text=Product+B',
-      info: '价格: ¥2999\n销量: 8000件'
-    }
-  ]
-
-  const handleExport = (image) => {
-    console.log('导出图片 Base64:', image)
-  }
+  // const products = [
+  //   {
+  //     name: '产品 A',
+  //     image: 'https://via.placeholder.com/200x200.png?text=Product+A',
+  //     info: '价格: ¥1999\n销量: 5000件'
+  //   },
+  //   {
+  //     name: '产品 B',
+  //     image: 'https://via.placeholder.com/200x200.png?text=Product+B',
+  //     info: '价格: ¥2999\n销量: 8000件'
+  //   }
+  // ]
+  //
+  // const handleExport = (image) => {
+  //   console.log('导出图片 Base64:', image)
+  // }
 
   return (
     <div>
       <h1>产品对比图生成</h1>
-      <CanvasPicture products={products} onExport={handleExport} />
+      {/*<CanvasPicture products={products} onExport={handleExport} />*/}
     </div>
   )
 }

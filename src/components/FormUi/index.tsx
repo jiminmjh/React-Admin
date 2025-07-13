@@ -13,20 +13,22 @@ const Index = (props: IFormProp) => {
         return <Input placeholder={formItem.label} allowClear={true} maxLength={formItem.maxLength} {...formItem} />
       case 'select':
         return (
-          <Select style={{ width: '100%' }} optionFilterProp="children" placeholder={formItem.label} {...formItem}>
-            {useMemo(() =>
+          <Select style={{ width: '100%' }} optionFilterProp='children' placeholder={formItem.label} {...formItem}>
+            {useMemo(
+              () =>
                 formItem.dictType && formItem.dictType === 'obj'
                   ? Object.entries(formItem.dict).map((ele: any) => (
-                    <Option value={ele[0]} key={ele[0]}>
-                      {ele[1]}
-                    </Option>
-                  ))
+                      <Option value={ele[0]} key={ele[0]}>
+                        {ele[1]}
+                      </Option>
+                    ))
                   : formItem.dict?.map((ele: any) => (
-                    <Option value={ele.data} key={ele.data}>
-                      {ele.label}
-                    </Option>
-                  ))
-              , [formItem.dict])}
+                      <Option value={ele.data} key={ele.data}>
+                        {ele.label}
+                      </Option>
+                    )),
+              [formItem.dict]
+            )}
           </Select>
         )
       case 'date':
