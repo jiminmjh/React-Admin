@@ -1,0 +1,47 @@
+{
+  // 统一缩进为2个空格（基于当前文件格式）
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  // 保存时自动格式化
+  "editor.formatOnSave": true,
+  // 文件类型特定设置
+  "files.associations": {
+    "*.vue": "vue",
+    "*.js": "javascript",
+    "*.json": "json",
+    "*.less": "scss",
+    "*.css": "css"
+  },
+  // Vue文件格式化设置
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  // JavaScript文件格式化设置
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  // JSON文件格式化设置
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  // SCSS文件格式化设置
+  "[less]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  // CSS文件格式化设置
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.tabSize": 2
+  },
+  // 通用编辑器设置
+  "editor.wordWrap": "on",
+  "editor.rulers": [120],
+  "editor.trimAutoWhitespace": true,
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true
+}
