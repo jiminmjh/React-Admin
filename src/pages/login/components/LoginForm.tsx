@@ -24,6 +24,7 @@ const LoginForm = forwardRef<
 >(({ form }, ref) => {
   const [captchaId, setCaptchaId] = useState<string>('')
   const [html, setHtml] = useState('')
+  const [isImg, setIsImg] = useState<boolean>(true)
   const { validateFields } = form
   const navigate = useNavigate() // 获取导航函数
 
@@ -74,19 +75,24 @@ const LoginForm = forwardRef<
       name: 'verifyCode',
       placeholder: '请输入验证码',
       render: (
-        <div className="captcha-div" onKeyUp={e => {
-          if (e.key === 'Enter') submit()
-        }}>
-          <div className="captcha-input">
-            <Input placeholder="请输入验证码" />
+        <div
+          className='captcha-div'
+          onKeyUp={e => {
+            if (e.key === 'Enter') submit()
+          }}>
+          <div className='captcha-input'>
+            <Input placeholder='请输入验证码' />
           </div>
-          <div className="captcha" onClick={refresh} >
-          <img 
-            src={html} 
-            alt="验证码"
-            style={{ cursor: 'pointer', maxWidth: '100%', height: 'auto' }}
-          />
-          </div>
+          {isImg ? (
+            <img
+              src={html}
+              alt='验证码'
+              style={{ cursor: 'pointer', maxWidth: '100%', height: 'auto' }}
+              onError={e => setIsImg(false)}
+            />
+          ) : (
+            <div className='captcha' onClick={refresh} dangerouslySetInnerHTML={{ __html: html }}></div>
+          )}
         </div>
       )
     }
@@ -103,7 +109,7 @@ const LoginForm = forwardRef<
   }, [])
 
   return (
-    <div className="login-form">
+    <div className='login-form'>
       <FormUi form={form} formList={formList} formLayout={formLayout} colLayout={{ md: 24, lg: 24 }} />
     </div>
   )
