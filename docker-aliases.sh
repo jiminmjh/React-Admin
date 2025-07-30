@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Docker 中文命令别名
+alias docker列表='docker ps -a'
+alias docker镜像='docker images'
+alias docker启动='docker start'
+alias docker停止='docker stop'
+alias docker重启='docker restart'
+alias docker删除='docker rm'
+alias docker删除镜像='docker rmi'
+alias docker日志='docker logs'
+alias docker进入='docker exec -it'
+alias docker构建='docker build'
+alias docker运行='docker run'
+alias docker拉取='docker pull'
+alias docker推送='docker push'
+alias docker网络='docker network ls'
+alias docker卷='docker volume ls'
+alias docker系统='docker system df'
+alias docker清理='docker system prune -a' 

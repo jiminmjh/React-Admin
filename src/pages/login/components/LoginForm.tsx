@@ -80,7 +80,13 @@ const LoginForm = forwardRef<
           <div className="captcha-input">
             <Input placeholder="请输入验证码" />
           </div>
-          <div className="captcha" onClick={refresh} dangerouslySetInnerHTML={{ __html: html }}></div>
+          <div className="captcha" onClick={refresh} >
+          <img 
+            src={html} 
+            alt="验证码"
+            style={{ cursor: 'pointer', maxWidth: '100%', height: 'auto' }}
+          />
+          </div>
         </div>
       )
     }
