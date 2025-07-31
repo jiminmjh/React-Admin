@@ -2,13 +2,12 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
 import storage from '@/utils/storage'
 import { getPermmenu, getPerson, loginAPI } from '@/server'
-import { ILoginRes, IMenuItem, IRouteObj, IUserInfo, IUserState } from '@/types/user'
+import { ILoginRes, IUser, IRouteObj, IUserState } from '@/types/user'
 import { ILoginParams } from '@/types/login'
 import { persistReducer } from 'redux-persist'
 import storageEngine from 'redux-persist/lib/storage' // 使用 localStorage 作为存储引擎
 
 type ISetToken = ILoginRes & { isChangeRefresh: boolean }
-type IUser = [person: IUserInfo, permmenu: { perms: string[]; menus: IMenuItem[] }]
 
 // 配置 redux-persist 的持久化设置
 const persistConfig = {

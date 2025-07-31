@@ -45,7 +45,7 @@ export type IUserState = {
   info: IUserInfo | null;
   perms: string[];
   menus: IMenuItem[];
-  tags: Partial<IRouteObj>[]
+  tags: Partial<IRouteObj>[];
 };
 
 export type IRouteObj = {
@@ -62,6 +62,10 @@ export type IRouteObj = {
   viewPath: string;
   keepAlive: boolean;
   isShow: boolean;
-  active: boolean
-}
+  active: boolean;
+};
 
+export type IUser = {
+  person: IUserInfo;
+  permmenu: { perms: string[]; menus: IMenuItem[] };
+};
