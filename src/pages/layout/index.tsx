@@ -93,7 +93,7 @@ const LayoutPage: React.FC = () => {
   return (
     <Layout className={`${styles.main} bg`}>
       <Sider
-        breakpoint='md'
+        breakpoint='xs'
         collapsedWidth='0'
         className={styles.sider}
         width={sideWidth}
@@ -117,6 +117,7 @@ const LayoutPage: React.FC = () => {
           onClick={changeMenu}
           openKeys={openKeys}
           onOpenChange={onOpenChange}
+          style={{ userSelect: 'none' }}
         />
       </Sider>
       <Layout>
