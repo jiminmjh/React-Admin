@@ -10,6 +10,7 @@ import { deepTree, getClickMenuTags } from '@/utils'
 import { DropboxOutlined } from '@ant-design/icons'
 import { setTags } from '@/stores/user.ts'
 import cloneDeep from 'lodash/cloneDeep'
+import IconRenderer from '@/components/Icons'
 
 const { Header, Content, Footer, Sider } = Layout
 
@@ -30,17 +31,15 @@ const LayoutPage: React.FC = () => {
   const { menus } = useSelector((state: RootState) => state.user)
 
   /*
-  * 递归获取菜单 Menu类型 数组
-  */
-  const getMenuItem = (item) => {
+   * 递归获取菜单 Menu类型 数组
+   */
+  const getMenuItem = item => {
     return item.map(e => {
       const { icon, name, router, children, id } = e
       if (name === '首页' || !e) return
       const obj: any = {
         key: id,
-        icon: <DropboxOutlined onClick={() => {
-          console.log('item', e)
-        }} />,
+        icon: <IconRenderer iconName={icon} />,
         label: name,
         router,
         children: children && children.length ? getMenuItem(children) : undefined
@@ -55,7 +54,7 @@ const LayoutPage: React.FC = () => {
     sideWidth === menuMaxWidth ? setOpenKeys(keys) : setOpenKeys([])
   }
 
-  const changeMenu = (e) => {
+  const changeMenu = e => {
     if (!openKeys.length) {
       console.log('e', e)
     }
@@ -94,30 +93,31 @@ const LayoutPage: React.FC = () => {
   return (
     <Layout className={`${styles.main} bg`}>
       <Sider
-        breakpoint="md"
-        collapsedWidth="0"
+        breakpoint='md'
+        collapsedWidth='0'
         className={styles.sider}
         width={sideWidth}
-        onBreakpoint={(broken) => {
+        onBreakpoint={broken => {
           console.log(broken)
         }}
         onCollapse={(collapsed, type) => {
           console.log(collapsed, type)
-        }}
-      >
+        }}>
         <div className={styles.logo}>
-          <img src="https://show.cool-admin.com/logo.png" alt="" />
+          <img src='https://show.cool-admin.com/logo.png' alt='' />
           {sideWidth === menuMaxWidth && <div className={styles.text}>MY-ADMIN</div>}
         </div>
-        <Menu className={styles.menu}
-              theme="dark"
-              mode="inline"
-              defaultSelectedKeys={['']}
-              items={menuList}
-              expandIcon={sideWidth === menuMaxWidth} // 隐藏下拉箭头
-              onClick={changeMenu}
-              openKeys={openKeys}
-              onOpenChange={onOpenChange} />
+        <Menu
+          className={styles.menu}
+          theme='dark'
+          mode='inline'
+          defaultSelectedKeys={['']}
+          items={menuList}
+          expandIcon={sideWidth === menuMaxWidth} // 隐藏下拉箭头
+          onClick={changeMenu}
+          openKeys={openKeys}
+          onOpenChange={onOpenChange}
+        />
       </Sider>
       <Layout>
         <Header className={`${styles.header} theme-bg`}>
@@ -126,7 +126,8 @@ const LayoutPage: React.FC = () => {
             setSideWidth={setSideWidth}
             activeMenu={activeMenu}
             historyList={historyList}
-            menuList={menuList} />
+            menuList={menuList}
+          />
         </Header>
         <Content className={`${styles.content} bg`}>
           <div
@@ -134,8 +135,7 @@ const LayoutPage: React.FC = () => {
               minHeight: 36,
               borderRadius: borderRadiusLG
             }}
-            className="theme-bg"
-          >
+            className='theme-bg'>
             <Outlet /> {/* 子路由渲染位置 */}
           </div>
         </Content>
