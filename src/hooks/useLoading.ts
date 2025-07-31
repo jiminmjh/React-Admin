@@ -1,5 +1,5 @@
 /* loading状态控制，支持多个loading状态 */
-import { useState, useCallback } from 'react'
+import { useState } from 'react'
 
 type KeyType = string
 
@@ -8,8 +8,10 @@ interface LoadingState {
 }
 
 interface UseLoadingReturn {
-  loading: LoadingState
-  wrap: (key: KeyType, fn: Function) => (...args: any[]) => Promise<any>
+  loading: LoadingState | boolean
+  wrap:
+    | ((key: KeyType, fn: Function) => (...args: any[]) => Promise<any>)
+    | ((fn: Function) => (...args: any[]) => Promise<any>)
 }
 
 export function useLoading(keys?: KeyType[] | KeyType): UseLoadingReturn {
@@ -24,7 +26,7 @@ export function useLoading(keys?: KeyType[] | KeyType): UseLoadingReturn {
   })
 
   // 包装异步函数，自动处理 loading 状态
-  const wrap = (key: KeyType = 'default', fn: Function) => {
+  const wrap = (key: KeyType, fn: Function) => {
     return async (...args: any[]) => {
       setLoading({ ...loading, [key]: true })
       try {
@@ -33,6 +35,13 @@ export function useLoading(keys?: KeyType[] | KeyType): UseLoadingReturn {
       } finally {
         setLoading({ ...loading, [key]: false })
       }
+    }
+  }
+
+  if (!keys) {
+    return {
+      loading: loading.default,
+      wrap: (fn: Function) => wrap('default', fn)
     }
   }
 
