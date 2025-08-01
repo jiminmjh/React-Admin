@@ -1,8 +1,8 @@
-import React, { Dispatch, SetStateAction, useState } from 'react'
+import React, { Dispatch, SetStateAction } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Avatar, Flex, Popover, Switch, Tag } from 'antd'
 import { menuMaxWidth, menuMinWidth } from '@/comom/readonly'
-import { logout, setTags } from '@/stores/user.ts'
+import { logout, setTags, toggleTheme } from '@/stores/user.ts' // 更新导入
 import { RootState, store } from '@/stores'
 import styles from './index.module.less'
 import { useSelector } from 'react-redux'
@@ -29,13 +29,12 @@ type IHeaderProp = {
   menuList: unknown
 }
 
-const LayoutHeader: React.FC<IHeaderProp> = (props) => {
+const LayoutHeader: React.FC<IHeaderProp> = props => {
   const { sideWidth, setSideWidth, activeMenu, historyList, menuList } = props
-  const [hoveredTag, setHoveredTag] = useState<number>() //当前鼠标放在的标签id
+  const [hoveredTag, setHoveredTag] = useState<number>() //当前鼠标放在的标签
   const [names, setNames] = useState<string[]>([]) // 当前菜单嵌套名
   const navigate = useNavigate()
-  const root = document.getElementById('root')
-  const { tags } = useSelector((state: RootState) => state.user)
+  const { tags, isDarkMode } = useSelector((state: RootState) => state.user) // 更新状态选择
 
   useEffect(() => {
     !tags.length && setNames([])
@@ -51,36 +50,28 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
     const tabsContainer = document.querySelector('#tag')
     const tabsWrapper = document.querySelector('.ant-flex')
 
-    tabsContainer.addEventListener('wheel', _.throttle(event => {
-      event.preventDefault() // 禁用浏览器的默认滚轮事件
-      const maxScrollLeft = (tabsWrapper.scrollWidth + 269) - tabsContainer.clientWidth
-      // 判断是否滚动到边界
-      if (event.deltaY > 0 && tabsWrapper.scrollLeft >= maxScrollLeft) {
-        console.log('已经到最右边')
-      } else if (event.deltaY < 0 && tabsWrapper.scrollLeft <= 0) {
-        // console.log('已经到最左边', tabsWrapper.scrollLeft)
-      } else {
-        console.log('event.deltaY ', event.deltaY)
-        tabsWrapper.scrollLeft += event.deltaY
-      }
-    }, 60), { passive: false })
+    tabsContainer?.addEventListener(
+      'wheel',
+      _.throttle(event => {
+        event.preventDefault() // 禁用浏览器的默认滚轮事件
+        const maxScrollLeft = tabsWrapper.scrollWidth + 269 - tabsContainer.clientWidth
+        if (event.deltaY > 0 && tabsWrapper.scrollLeft >= maxScrollLeft) {
+          console.log('已经到最右边')
+        } else if (event.deltaY < 0 && tabsWrapper.scrollLeft <= 0) {
+          // console.log('已经到最左边')
+        } else {
+          tabsWrapper.scrollLeft += event.deltaY
+        }
+      }, 60),
+      { passive: false }
+    )
   }, [])
 
   /*
-  * 暗黑模式转换
-  */
-  const changeSwitch = async (e) => {
-    if (e) {
-// 设置主色
-      root.style.setProperty('--ant-primary-color', '#2c3142')
-// 设置容器背景
-      root.style.setProperty('--ant-bg-color-container', '#2c3142')
-      root.style.setProperty('--bg-color', '#2c3142')
-    } else {
-      root.style.setProperty('--ant-primary-color', '#1677ff')
-      root.style.setProperty('--ant-bg-color-container', '#ffffff')
-      root.style.setProperty('--bg-color', '#f7f7f7')
-    }
+   * 主题切换 - 使用 Ant Design 5 主题系统
+   */
+  const changeSwitch = async (checked: boolean) => {
+    store.dispatch(toggleTheme())
   }
 
   const loginOut = () => store.dispatch(logout())
@@ -101,10 +92,10 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
   )
 
   /*
-  * tag便签切换
-  *  - 点击 传item
-  *  - 回退 传id
-  * */
+   * tag便签切换
+   *  - 点击 传item
+   *  - 回退 传id
+   * */
   const changeTag = (item?: IRouteObj, id?: number) => {
     if (!item && !id) return
     if (item) historyList.current?.push(item?.id)
@@ -118,21 +109,21 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
     store.dispatch(setTags(arr))
     hoveredTag && setHoveredTag(undefined)
     const route = item ? item.router : tags.find(item => item.id === ids).router
-    navigate(route);
-    (activeMenu.current as any) = id ?? item.id
+    navigate(route)
+    ;(activeMenu.current as any) = id ?? item.id
   }
 
   /*
-  *  导航标签回退
-  */
+   *  导航标签回退
+   */
   const back = () => {
     const arr = cloneDeep(historyList.current) ?? []
     const len = arr.length - 1
     if (len === -1) return
     const r = arr.splice(-1, 1)
-    console.log('r', r);
-    (historyList.current as any) = arr
-    changeTag(undefined, len ? arr.findLast((e) => e) : r[0])
+    console.log('r', r)
+    ;(historyList.current as any) = arr
+    changeTag(undefined, len ? arr.findLast(e => e) : r[0])
   }
 
   const renderTag = useMemo(() => {
@@ -190,23 +181,17 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
           color={tagColor}
           style={tagStyle}
           onMouseEnter={handleMouseEnter}
-          onClick={handleTagClick}
-        >
+          onClick={handleTagClick}>
           {item.name}
-          {(isHovered || isActive) ? (
-            <CloseOutlined
-              className="close-icon"
-              onClick={handleCloseClick}
-            />
-          ) : null}
+          {isHovered || isActive ? <CloseOutlined className='close-icon' onClick={handleCloseClick} /> : null}
         </Tag>
       )
     })
   }, [hoveredTag, activeMenu.current, tags])
 
   // 获取当前菜单 - 级别
-  const getMenuListNames = (data) => {
-    setNames([])  // 清空 names 数组
+  const getMenuListNames = data => {
+    setNames([]) // 清空 names 数组
     return data.find(e => {
       if (!e || !e.key) return false
       const flag = e.key === activeMenu.current
@@ -222,29 +207,27 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
           if (result) {
             setNames(prev => [e.label, ...prev])
             return true
-          }  // 如果递归找到，返回结果
+          } // 如果递归找到，返回结果
         }
       }
-      return false  // 如果没有找到匹配的项，返回 false
+      return false // 如果没有找到匹配的项，返回 false
     })
   }
 
   // 渲染当前菜单 - 级别
-  const renderTitle = useMemo(() => (): any =>
-    names.map((e, i) => {
-      const id = uniqueId()
-      return (
-        <div key={id}>
-          <span style={{ marginLeft: 10 }}>{e} </span>
-          {
-            i != names.length - 1 ? (
-              <span style={{ marginLeft: 10 }}>
-                {'>'}
-              </span>) : ''
-          }
-        </div>
-      )
-    }), [names])
+  const renderTitle = useMemo(
+    () => (): any =>
+      names.map((e, i) => {
+        const id = uniqueId()
+        return (
+          <div key={id}>
+            <span style={{ marginLeft: 10 }}>{e} </span>
+            {i != names.length - 1 ? <span style={{ marginLeft: 10 }}>{'>'}</span> : ''}
+          </div>
+        )
+      }),
+    [names]
+  )
 
   useEffect(() => {
     getMenuListNames(menuList)
@@ -252,41 +235,41 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
   }, [activeMenu.current])
 
   return (
-    <div className={`${styles.content} bg`}>
-      {/*导航烂*/}
-      <div className={`${styles.nav} theme-bg`}>
-        <div className="flex-center">
-          <MenuFoldOutlined onClick={() =>
-            sideWidth === menuMaxWidth ? setSideWidth(menuMinWidth) : setSideWidth(menuMaxWidth)
-          } />
+    <div className={styles.content}>
+      {/*导航栏*/}
+      <div className={styles.nav}>
+        <div className='flex-center'>
+          <MenuFoldOutlined
+            onClick={() => (sideWidth === menuMaxWidth ? setSideWidth(menuMinWidth) : setSideWidth(menuMaxWidth))}
+          />
           {renderTitle()}
         </div>
-        <i className="iconfont icon-dark"></i>
         <div className={styles['header-personal']}>
           <Switch
-            className="switch"
+            className='switch'
             style={{ marginRight: 20 }}
+            checked={isDarkMode}
             checkedChildren={<MoonOutlined style={{ fontSize: '8px' }} />}
             unCheckedChildren={<SunOutlined style={{ fontSize: '8px', transform: 'scale(0.8)' }} />}
             onChange={changeSwitch}
           />
           <div>
-            <Popover content={renderPopover} trigger="click">
+            <Popover content={renderPopover} trigger='click'>
               <span>管理员</span>
-              <Avatar style={{ marginLeft: 10 }} shape="square" icon={<UserOutlined />} />
+              <Avatar style={{ marginLeft: 10 }} shape='square' icon={<UserOutlined />} />
             </Popover>
           </div>
         </div>
       </div>
       {/*历史纪录操作栏*/}
-      <div className={`theme-bg ${styles.history}`}>
+      <div className={styles.history}>
         <div className={`flex-around ${styles.operate}`}>
           <LeftOutlined onClick={back} />
           <RedoOutlined />
           <HomeOutlined onClick={() => navigate('/')} />
         </div>
-        <div className={styles.tag} id="tag">
-          <Flex gap="4px 0" wrap className={styles.flex}>
+        <div className={styles.tag} id='tag'>
+          <Flex gap='4px 0' wrap className={styles.flex}>
             {renderTag}
           </Flex>
         </div>
@@ -296,5 +279,3 @@ const LayoutHeader: React.FC<IHeaderProp> = (props) => {
 }
 
 export default React.memo(LayoutHeader)
-
-

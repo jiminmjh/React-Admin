@@ -9,20 +9,25 @@ import storageEngine from 'redux-persist/lib/storage' // 使用 localStorage 作
 
 type ISetToken = ILoginRes & { isChangeRefresh: boolean }
 
+interface IExtendedUserState extends IUserState {
+  isDarkMode: boolean
+}
+
 // 配置 redux-persist 的持久化设置
 const persistConfig = {
   key: 'user', // 持久化存储的 key
   storage: storageEngine, // 使用 localStorage 进行存储
-  whitelist: ['info', 'perms', 'menus', 'tags'] // 需要持久化的字段
+  whitelist: ['info', 'perms', 'menus', 'tags', 'isDarkMode'] // 需要持久化的字段
 }
 
-const initialState: IUserState = {
+const initialState: IExtendedUserState = {
   token: storage.get('token') || '',
   refreshToken: storage.get('refreshToken') || '',
   info: null,
   perms: [],
   menus: [],
-  tags: []
+  tags: [],
+  isDarkMode: false // 新增主题状态
 }
 
 /** createAsyncThunk<Returned, ThunkArg, ThunkApiConfig>
@@ -67,16 +72,23 @@ const userSlice = createSlice({
       state.perms = []
       state.menus = []
       state.tags = []
+      // 保持主题偏好，不重置 isDarkMode
       storage.remove('token')
       storage.remove('refreshToken')
     },
     setTags: (state, action: PayloadAction<Partial<IRouteObj>[]>) => {
       state.tags = action.payload
+    },
+    // 新增主题管理 reducers
+    toggleTheme: state => {
+      state.isDarkMode = !state.isDarkMode
+    },
+    setTheme: (state, action: PayloadAction<boolean>) => {
+      state.isDarkMode = action.payload
     }
   },
-
   extraReducers: builder => {
-    builder.addCase(fetchUserInfo.fulfilled, (state: IUserState, { payload }) => {
+    builder.addCase(fetchUserInfo.fulfilled, (state: IExtendedUserState, { payload }) => {
       state.info = payload.person
       state.perms = payload.permmenu.perms
       state.menus = payload.permmenu.menus
@@ -84,6 +96,6 @@ const userSlice = createSlice({
   }
 })
 
-export const { setToken, logout, setTags } = userSlice.actions
+export const { setToken, logout, setTags, toggleTheme, setTheme } = userSlice.actions
 // 使用 persistReducer 包装 userSlice.reducer
 export default persistReducer(persistConfig, userSlice.reducer)
