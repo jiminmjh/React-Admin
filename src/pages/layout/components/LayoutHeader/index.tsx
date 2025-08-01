@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Avatar, Flex, Popover, Switch, Tag } from 'antd'
+import { Avatar, Flex, Popover, Switch, Tag, theme } from 'antd'
 import { menuMaxWidth, menuMinWidth } from '@/comom/readonly'
 import { logout, setTags, toggleTheme } from '@/stores/user.ts' // 更新导入
 import { RootState, store } from '@/stores'
@@ -35,6 +35,10 @@ const LayoutHeader: React.FC<IHeaderProp> = props => {
   const [names, setNames] = useState<string[]>([]) // 当前菜单嵌套名
   const navigate = useNavigate()
   const { tags, isDarkMode } = useSelector((state: RootState) => state.user) // 更新状态选择
+
+  const {
+    token: { colorBgContainer, colorText }
+  } = theme.useToken()
 
   useEffect(() => {
     !tags.length && setNames([])
@@ -235,7 +239,7 @@ const LayoutHeader: React.FC<IHeaderProp> = props => {
   }, [activeMenu.current])
 
   return (
-    <div className={styles.content}>
+    <div className={styles.content} style={{ background: colorBgContainer }}>
       {/*导航栏*/}
       <div className={styles.nav}>
         <div className='flex-center'>
@@ -262,7 +266,7 @@ const LayoutHeader: React.FC<IHeaderProp> = props => {
         </div>
       </div>
       {/*历史纪录操作栏*/}
-      <div className={styles.history}>
+      <div className={styles.history} style={{ background: colorBgContainer }}>
         <div className={`flex-around ${styles.operate}`}>
           <LeftOutlined onClick={back} />
           <RedoOutlined />

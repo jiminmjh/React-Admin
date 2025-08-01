@@ -49,6 +49,7 @@
 // canvas 生成产品对比图片
 import React from 'react'
 import CanvasPicture from '@/components/CanvasPicture'
+import PageLayout from '@/components/PageLayout'
 
 const ProductCompare = () => {
   // const products = [
@@ -69,10 +70,12 @@ const ProductCompare = () => {
   // }
 
   return (
-    <div>
-      <h1>产品对比图生成</h1>
-      {/*<CanvasPicture products={products} onExport={handleExport} />*/}
-    </div>
+    <PageLayout>
+      <div>
+        <h1>产品对比图生成</h1>
+        {/*<CanvasPicture products={products} onExport={handleExport} />*/}
+      </div>
+    </PageLayout>
   )
 }
 

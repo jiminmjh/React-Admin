@@ -25,7 +25,7 @@ const LayoutPage: React.FC = () => {
   const { tags } = useSelector((state: RootState) => state.user)
 
   const {
-    token: { colorBgContainer, borderRadiusLG }
+    token: { borderRadiusLG }
   } = theme.useToken()
 
   const { menus } = useSelector((state: RootState) => state.user)
@@ -91,7 +91,7 @@ const LayoutPage: React.FC = () => {
   }, [historyList.current])
 
   return (
-    <Layout className={`${styles.main} bg`}>
+    <Layout className={styles.main}>
       <Sider
         breakpoint='xs'
         collapsedWidth='0'
@@ -121,7 +121,7 @@ const LayoutPage: React.FC = () => {
         />
       </Sider>
       <Layout>
-        <Header className={`${styles.header} theme-bg`}>
+        <Header className={styles.header}>
           <LayoutHeader
             sideWidth={sideWidth}
             setSideWidth={setSideWidth}
@@ -130,13 +130,12 @@ const LayoutPage: React.FC = () => {
             menuList={menuList}
           />
         </Header>
-        <Content className={`${styles.content} bg`}>
+        <Content className={styles.content}>
           <div
             style={{
               minHeight: 36,
               borderRadius: borderRadiusLG
-            }}
-            className='theme-bg'>
+            }}>
             <Outlet /> {/* 子路由渲染位置 */}
           </div>
         </Content>

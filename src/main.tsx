@@ -23,10 +23,10 @@ function ThemedApp() {
           colorBgContainer: isDarkMode ? '#2c3142' : '#ffffff',
           colorBgLayout: isDarkMode ? '#2c3142' : '#f7f7f7',
           colorBgElevated: isDarkMode ? '#2c3142' : '#ffffff',
-        },
-      }}
-    >
-       {/* PersistGate 确保在恢复状态后再渲染 UI */}
+          colorText: isDarkMode ? '#ffffff' : '#000000'
+        }
+      }}>
+      {/* PersistGate 确保在恢复状态后再渲染 UI */}
       <PersistGate loading={null} persistor={persistor}>
         <App />
       </PersistGate>
