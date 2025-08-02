@@ -8,7 +8,7 @@ ReferenceError: structuredClone is not defined" 表示node版本过低，请升�
 
 ## webstorm 代码调试断点
 - 配置
-![img.png](src/static/node/img.png)
+![img.png](src/assets/node/img.png)
 
 ## 生产开发环境切换运行醒目
 1. env.development 和 .env.production 文件创建
@@ -46,10 +46,10 @@ ReferenceError: structuredClone is not defined" 表示node版本过低，请升�
    将要过期：
    1. 将当前正在发送的请求给暂停，追加到一个请求队列中 【如何暂停】
    2. 发送刷新token的请求
-   等待完成 
+   等待完成
    1. 将最新token给存下来
    2. 将请求队列中暂停的请求重新开启（修改之前的旧token）
-   
+
 3. Axios 响应拦截器     【后处理】
    根据http状态码401或业务状态码判断是否过期
    未过期：无需额外操作
@@ -73,15 +73,15 @@ return new Promise(resolve => {
 })
 ```
 ## immutable 性能优化  （如果数据多层，考虑使用 Immutable）
-![img_1.png](src/static/node/img_1.png)
+![img_1.png](src/assets/node/img_1.png)
 
 - import {Map,List，formJS！！！} from immutable
 - .setIn(['','层级']，'要修改的值')
 - .undateIn(['数组名'],(list)=>数组操作)
-![img_2.png](src/static/node/img_2.png)
+![img_2.png](src/assets/node/img_2.png)
 
 - 是否有必要使用 cloneDeep？
 在 Redux 中，数据是不可变的，因此当你需要更新状态时，不应该直接修改原始状态对象。cloneDeep 是一种确保数据不可变的方式，但它的性能开销较大。如果你只是更新 tags 数组的某些部分，并不需要深拷贝整个数组，你可以通过 更新引用 的方式来替代 cloneDeep，这就是使用 Immutable 方法 的理念。
-  
+
 
 
