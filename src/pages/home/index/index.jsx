@@ -48,7 +48,7 @@
 
 // canvas 生成产品对比图片
 import React from 'react'
-import CanvasPicture from '@/components/CanvasPicture'
+// import CanvasPicture from '@/components/CanvasPicture'
 import PageLayout from '@/components/PageLayout'
 
 const ProductCompare = () => {
