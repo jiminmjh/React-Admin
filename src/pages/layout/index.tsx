@@ -3,14 +3,13 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { Layout, Menu, theme } from 'antd'
 import styles from './index.module.less'
 import LayoutHeader from './components/LayoutHeader'
-import { menuMaxWidth } from '@/comom/readonly'
+import { menuMaxWidth } from '@/comom/constants'
 import { useSelector } from 'react-redux'
 import { RootState, store } from '@/stores'
 import { deepTree, getClickMenuTags } from '@/utils'
-import { DropboxOutlined } from '@ant-design/icons'
 import { setTags } from '@/stores/user.ts'
 import cloneDeep from 'lodash/cloneDeep'
-import IconRenderer from '@/components/Icons'
+import IconRenderer from '@/components/RenderAliIcon'
 
 const { Header, Content, Footer, Sider } = Layout
 
@@ -39,7 +38,7 @@ const LayoutPage: React.FC = () => {
       if (name === '首页' || !e) return
       const obj: any = {
         key: id,
-        icon: <IconRenderer iconName={icon} />,
+        icon: <IconRenderer name='icon-dark' />,
         label: name,
         router,
         children: children && children.length ? getMenuItem(children) : undefined

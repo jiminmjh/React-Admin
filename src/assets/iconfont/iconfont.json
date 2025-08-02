@@ -1,0 +1,30 @@
+{
+  "id": "4801246",
+  "name": "my-cool-admin",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "18443186",
+      "name": "dark",
+      "font_class": "dark",
+      "unicode": "e702",
+      "unicode_decimal": 59138
+    },
+    {
+      "icon_id": "27647115",
+      "name": "暗黑模式",
+      "font_class": "anheimoshi",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "33302178",
+      "name": "dark",
+      "font_class": "moon",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    }
+  ]
+}
