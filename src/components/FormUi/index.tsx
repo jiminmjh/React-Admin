@@ -6,7 +6,8 @@ import { IFormProp } from '@/types/component'
 const Option = Select.Option
 const TextArea = Input.TextArea
 const Item = Form.Item
-const Index = (props: IFormProp) => {
+
+const FormUi = (props: IFormProp) => {
   const renderItem = (formItem: any) => {
     switch (formItem.type) {
       case 'input':
@@ -71,4 +72,4 @@ const Index = (props: IFormProp) => {
   )
 }
 
-export default React.memo(Index)
+export default React.memo(FormUi)
