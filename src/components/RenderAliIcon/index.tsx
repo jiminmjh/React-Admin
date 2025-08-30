@@ -1,6 +1,7 @@
 import React from 'react'
 import { iconfontUrl } from '@/comom/constants'
 import { createFromIconfontCN } from '@ant-design/icons'
+import { theme } from 'antd'
 
 // 判断是否为开发环境
 const isDev = import.meta.env.VITE_ENV === 'dev'
@@ -33,14 +34,17 @@ const RenderAliIcon: React.FC<IconProps> = ({
   style = {},
   className = '',
   size = 16,
-  color = '#fff',
+  color = '',
   ...props
 }) => {
-  console.log('==name', name, 'isDev:', isDev)
+  const {
+    token: { colorText }
+  } = theme.useToken()
 
   const iconStyle: React.CSSProperties = {
     ...style,
-    ...(size && { fontSize: size })
+    ...(size && { fontSize: size }),
+    ...{ color: color || colorText }
   }
 
   return (

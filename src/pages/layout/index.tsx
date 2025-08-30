@@ -38,7 +38,7 @@ const LayoutPage: React.FC = () => {
       if (name === '首页' || !e) return
       const obj: any = {
         key: id,
-        icon: <IconRenderer name='icon-dark' />,
+        icon: <IconRenderer name='icon-dark' color='#fff' />,
         label: name,
         router,
         children: children && children.length ? getMenuItem(children) : undefined

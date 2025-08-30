@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Avatar, Flex, Popover, Switch, Tag, theme } from 'antd'
-import { menuMaxWidth, menuMinWidth } from '@/comom/readonly'
+import { menuMaxWidth, menuMinWidth } from '@/comom/constants'
 import { logout, setTags, toggleTheme } from '@/stores/user.ts' // 更新导入
 import { RootState, store } from '@/stores'
 import styles from './index.module.less'
