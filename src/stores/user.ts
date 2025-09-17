@@ -7,6 +7,7 @@ import { ILoginParams } from '@/types/login'
 import { persistReducer } from 'redux-persist'
 import storageEngine from 'redux-persist/lib/storage' // 使用 localStorage 作为存储引擎
 
+//! isChangeRefresh 控制刷新token是否需要自动延长
 type ISetToken = ILoginRes & { isChangeRefresh: boolean }
 
 interface IExtendedUserState extends IUserState {
@@ -57,13 +58,16 @@ const userSlice = createSlice({
       // 写入token
       state.token = token
       const isRefresh = action.payload.isChangeRefresh ?? true
-      isRefresh && (state.refreshToken = refreshToken)
-
+      console.log('==isRefresh',isRefresh);
       // 写入本地存储
+      if(isRefresh){
+        state.refreshToken = refreshToken
+         // storage.set('refreshToken', refreshToken, 10)
+        storage.set('refreshToken', refreshToken, refreshExpire)
+      }
       // storage.set('token', token, 5) // 自定义token到期时间 s
-      // storage.set('refreshToken', refreshToken, 10)
       storage.set('token', token, expire)
-      storage.set('refreshToken', refreshToken, refreshExpire)
+
     },
     logout: state => {
       state.token = ''
