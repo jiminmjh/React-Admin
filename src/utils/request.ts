@@ -12,21 +12,10 @@ const defaultConfig: AxiosRequestConfig = {
 
 class HttpRequest {
   /**
-   * private: Axios 实例，用于发送HTTP请求
-   * 设为私有防止外部直接访问和修改，确保请求的一致性和安全性
-   */
+ * private:  设为私有防止外部直接访问和修改，确保请求的一致性和安全性
+ */
   private axiosIns: AxiosInstance
-
-  /**
-   * private: 请求队列，存储等待token刷新完成的请求回调函数
-   * 设为私有防止外部直接操作队列，避免并发刷新token时的竞态条件
-   */
   private queq: Array<(newToken: string) => void>
-
-  /**
-   * private: token刷新状态标志
-   * 设为私有确保只有内部方法能修改此状态，防止多次并发刷新token
-   */
   private isRefreshing: boolean
 
   constructor(config: AxiosRequestConfig) {
@@ -38,10 +27,6 @@ class HttpRequest {
     this.setupResponseInterceptor()
   }
 
-  /**
-   * private: 设置请求拦截器
-   * 封装请求拦截器的配置逻辑，提高代码可读性和可维护性
-   */
   private setupRequestInterceptor(): any {
     this.axiosIns.interceptors.request.use(
       (config:any) => {
@@ -62,7 +47,6 @@ class HttpRequest {
             this.handleLoginExpired()
           }
         }
-
         return config
       },
       error => {
@@ -71,10 +55,6 @@ class HttpRequest {
     )
   }
 
-  /**
-   * private: 设置响应拦截器
-   * 封装响应拦截器的配置逻辑，统一处理响应数据和错误
-   */
   private setupResponseInterceptor(): void {
     this.axiosIns.interceptors.response.use(
       response => {
@@ -95,7 +75,7 @@ class HttpRequest {
   }
 
   /**
-   * private: 处理token刷新逻辑
+   * 处理token刷新逻辑
    * 将token刷新的复杂逻辑封装为私有方法，避免代码重复，提高可维护性
    * @param config - 当前请求配置
    * @param refreshToken - 刷新token
@@ -134,7 +114,7 @@ class HttpRequest {
   }
 
   /**
-   * private: 处理登录过期逻辑
+   * 处理登录过期逻辑
    * 封装登录过期时的处理逻辑，统一管理用户登录状态
    */
   private handleLoginExpired(): void {
@@ -147,10 +127,6 @@ class HttpRequest {
     }
   }
 
-  /**
-   * public: GET请求方法
-   * 提供标准的GET请求接口，支持泛型返回类型
-   */
   get<T = unknown>(url: string, params: object = {}, config: AxiosRequestConfig = {}): Promise<T> {
     return this.axiosIns.get(url, {
       ...config,
@@ -158,10 +134,6 @@ class HttpRequest {
     })
   }
 
-  /**
-   * public: POST请求方法
-   * 提供标准的POST请求接口，支持泛型返回类型
-   */
   post<T = unknown>(url: string, data: object = {}, config: AxiosRequestConfig = {}): Promise<T> {
     return this.axiosIns.post(url, data, {
       ...config

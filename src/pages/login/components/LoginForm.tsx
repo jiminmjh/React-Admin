@@ -50,7 +50,7 @@ const LoginForm = forwardRef<
     } catch (e: any) {
       message.error(e?.errorFields?.[0].errors[0])
     } finally {
-      await refresh()
+      // await refresh()
     }
   }
 
@@ -87,6 +87,7 @@ const LoginForm = forwardRef<
             <img
               src={html}
               alt='验证码'
+              onClick={refresh}
               style={{ cursor: 'pointer', maxWidth: '100%', height: 'auto' }}
               onError={e => setIsImg(false)}
             />

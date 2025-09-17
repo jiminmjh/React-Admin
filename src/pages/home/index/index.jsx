@@ -73,11 +73,8 @@ const ProductCompare = () => {
 
       setCaptchaData(result.data)
       setCaptchaId(result.captchaId)
-      message.success('验证码刷新成功')
       console.log('验证码ID:', result.captchaId)
     } catch (error) {
-      message.error('验证码刷新失败')
-      console.error('刷新验证码失败:', error)
     } finally {
       setLoading(false)
     }
@@ -101,11 +98,6 @@ const ProductCompare = () => {
       console.error('验证失败:', error)
     }
   }
-
-  // 组件挂载时自动获取验证码
-  useEffect(() => {
-    refreshCaptcha()
-  }, [])
 
   // const products = [
   //   {
