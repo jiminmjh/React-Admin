@@ -11,18 +11,40 @@ const defaultConfig: AxiosRequestConfig = {
 }
 
 class HttpRequest {
-  axiosIns: AxiosInstance
-  queq: Array<(newToken: string) => void>
-  isRefreshing: boolean
+  /**
+   * private: Axios 实例，用于发送HTTP请求
+   * 设为私有防止外部直接访问和修改，确保请求的一致性和安全性
+   */
+  private axiosIns: AxiosInstance
+
+  /**
+   * private: 请求队列，存储等待token刷新完成的请求回调函数
+   * 设为私有防止外部直接操作队列，避免并发刷新token时的竞态条件
+   */
+  private queq: Array<(newToken: string) => void>
+
+  /**
+   * private: token刷新状态标志
+   * 设为私有确保只有内部方法能修改此状态，防止多次并发刷新token
+   */
+  private isRefreshing: boolean
 
   constructor(config: AxiosRequestConfig) {
     this.axiosIns = axios.create(config)
     this.queq = []
     this.isRefreshing = false
 
-    /** 请求拦截器 */
+    this.setupRequestInterceptor()
+    this.setupResponseInterceptor()
+  }
+
+  /**
+   * private: 设置请求拦截器
+   * 封装请求拦截器的配置逻辑，提高代码可读性和可维护性
+   */
+  private setupRequestInterceptor(): any {
     this.axiosIns.interceptors.request.use(
-      config => {
+      (config:any) => {
         const token = storage.get('token') || ''
         const refreshToken = storage.get('refreshToken') || ''
 
@@ -35,43 +57,9 @@ class HttpRequest {
         // token要过期了,且refreshToken没过期
         if (storage.isExpired('token') && !config.url?.includes('refreshToken')) {
           if (!storage.isExpired('refreshToken')) {
-            if (!this.isRefreshing) {
-              // 1.发送刷新 token 的请求
-              console.log('发送刷新TOKEN的请求')
-              this.isRefreshing = true
-              refreshTokenAPI(refreshToken).then(async result => {
-                // 1.1异步更新 token，但是不要更新 refreshToken
-                // 先执行下面 将当前请求放入 queq 队列
-                console.log('刷新TOKEN完成', result)
-                await store.dispatch(setToken({ ...result, isChangeRefresh: false }))
-
-                // 1.2重置isRefreshing
-                this.isRefreshing = false
-
-                // 1.3取出队列中的函数进行执行
-                this.queq.forEach(item => item(result.token))
-
-                // 1.4重置队列
-                this.queq = []
-              })
-            }
-
-            //2.阻止当前请求的发出，将其追加到一个队列
-            return new Promise(resolve => {
-              this.queq.push(function (newToken) {
-                // 处理旧token
-                config.headers.Authorization = newToken
-                resolve(config)
-              })
-            })
+            return this.handleTokenRefresh(config, refreshToken)
           } else {
-            message.error('登录已过期，请重新登录')
-            storage.clearAll()
-            if (typeof window !== 'undefined') {
-              setTimeout(() => {
-                window.location.href = '/login'
-              }, 2000)
-            }
+            this.handleLoginExpired()
           }
         }
 
@@ -81,13 +69,18 @@ class HttpRequest {
         return Promise.reject(error)
       }
     )
+  }
 
-    /** 响应拦截器 */
+  /**
+   * private: 设置响应拦截器
+   * 封装响应拦截器的配置逻辑，统一处理响应数据和错误
+   */
+  private setupResponseInterceptor(): void {
     this.axiosIns.interceptors.response.use(
       response => {
         const { data: result, config } = response
 
-        //业务状态吗判断
+        //业务状态码判断
         if (result.code !== 1000) {
           config.toast ?? (config.toast = true)
           config.toast && message.error(result.message)
@@ -101,6 +94,63 @@ class HttpRequest {
     )
   }
 
+  /**
+   * private: 处理token刷新逻辑
+   * 将token刷新的复杂逻辑封装为私有方法，避免代码重复，提高可维护性
+   * @param config - 当前请求配置
+   * @param refreshToken - 刷新token
+   * @returns Promise<AxiosRequestConfig> - 返回更新后的请求配置
+   */
+  private handleTokenRefresh(config: AxiosRequestConfig, refreshToken: string): Promise<AxiosRequestConfig> {
+    if (!this.isRefreshing) {
+      // 1.发送刷新 token 的请求
+      console.log('发送刷新TOKEN的请求')
+      this.isRefreshing = true
+      refreshTokenAPI(refreshToken).then(async result => {
+        // 1.1异步更新 token，但是不要更新 refreshToken
+        // 先执行下面 将当前请求放入 queq 队列
+        console.log('刷新TOKEN完成', result)
+        await store.dispatch(setToken({ ...result, isChangeRefresh: false }))
+
+        // 1.2重置isRefreshing
+        this.isRefreshing = false
+
+        // 1.3取出队列中的函数进行执行
+        this.queq.forEach(item => item(result.token))
+
+        // 1.4重置队列
+        this.queq = []
+      })
+    }
+
+    //2.阻止当前请求的发出，将其追加到一个队列
+    return new Promise(resolve => {
+      this.queq.push(function (newToken) {
+        // 处理旧token
+        config.headers.Authorization = newToken
+        resolve(config)
+      })
+    })
+  }
+
+  /**
+   * private: 处理登录过期逻辑
+   * 封装登录过期时的处理逻辑，统一管理用户登录状态
+   */
+  private handleLoginExpired(): void {
+    message.error('登录已过期，请重新登录')
+    storage.clearAll()
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        window.location.href = '/login'
+      }, 2000)
+    }
+  }
+
+  /**
+   * public: GET请求方法
+   * 提供标准的GET请求接口，支持泛型返回类型
+   */
   get<T = unknown>(url: string, params: object = {}, config: AxiosRequestConfig = {}): Promise<T> {
     return this.axiosIns.get(url, {
       ...config,
@@ -108,6 +158,10 @@ class HttpRequest {
     })
   }
 
+  /**
+   * public: POST请求方法
+   * 提供标准的POST请求接口，支持泛型返回类型
+   */
   post<T = unknown>(url: string, data: object = {}, config: AxiosRequestConfig = {}): Promise<T> {
     return this.axiosIns.post(url, data, {
       ...config
